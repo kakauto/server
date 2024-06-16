@@ -1,0 +1,17 @@
+<h2 id="creating-a-virtual-hosts">Создание виртуальных хостов</h2><p>В системах Ubuntu файлы конфигурации Apache Virtual Hosts находятся в каталоге /etc/apache2/sites-available. Их можно включить, создав символические ссылки на каталог /etc/apache2/sites-enabled, которые Apache прочитал при запуске.</p><p>Откройте выбранный вами текстовый редактор и создайте следующий базовый файл конфигурации виртуального хоста:</p><div>/etc/apache2/sites-available/domain1.ru.conf</div><p>&nbsp;</p><pre>&lt;VirtualHost *:80&gt;
+    ServerName domain1.ru
+    ServerAlias www.domain1.ru
+    ServerAdmin webmaster@domain1.ru
+    DocumentRoot /var/www/domain1.ru/public_html
+
+    &lt;Directory /var/www/domain1.ru/public_html&gt;
+        Options -Indexes +FollowSymLinks
+        AllowOverride All
+    &lt;/Directory&gt;
+
+    ErrorLog ${APACHE_LOG_DIR}/domain1.ru-error.log
+    CustomLog ${APACHE_LOG_DIR}/domain1.ru-access.log combined
+&lt;/VirtualHost&gt;
+</pre><p>&nbsp;</p><ul><li>ServerName: Домен, который должен соответствовать этой конфигурации виртуального хоста. Это должно быть ваше доменное имя.</li><li>ServerAlias: Все другие домены или субдомены, которые должны соответствовать этому виртуальному хосту, например, субдомен www.</li><li>DocumentRoot: Каталог, из которого Apache будет обслуживать файлы домена.</li><li>Options: Эта директива, какие особенности сервера доступны в каталоге конкретного.<ul><li>-Indexes: Предотвращает списки каталогов.</li><li>FollowSymLinks: Когда эта опция включена, Apache будет переходить по символическим ссылкам.</li></ul></li><li>AllowOverride: Указывает, какие директивы, объявленные в файле .htaccess, могут переопределять директивы конфигурации.</li><li>ErrorLog, CustomLog: Указывает местоположение для файлов журнала.</li></ul><p>Вы можете назвать файл конфигурации как вам угодно, но лучше всего использовать имя домена в качестве имени файла конфигурации виртуального хоста.</p><p>Чтобы включить новый файл виртуального хоста, используйте a2ensiteвспомогательный скрипт, который создает символическую ссылку из файла виртуального хоста в каталог sites-enabled:</p><pre>sudo a2ensite domain1.ru
+</pre><p>&nbsp;</p><p>Другой вариант – <a href="https://andreyex.ru/operacionnaya-sistema-linux/kak-sozdat-simvolicheskie-ssylki-v-linux/" data-wpel-link="internal">создать символическую ссылку</a> вручную, как показано ниже:</p><pre>sudo ln -s /etc/apache2/sites-available/domain1.ru.conf /etc/apache2/sites-enabled/</pre><p>&nbsp;</p><p>После этого проверьте конфигурацию на наличие синтаксических ошибок с помощью:</p><pre>sudo apachectl configtest</pre><p>&nbsp;</p><p>Если ошибок нет, вы увидите следующий вывод:</p><pre>Syntax OK
+</pre><p>&nbsp;</p><p>Перезапустите службу Apache, чтобы изменения вступили в силу:</p><pre>sudo systemctl restart apache2</pre><p>&nbsp;</p><p>Наконец, чтобы убедиться, что все работает должным образом, откройте http://domain1.ru в вашем браузере, и вы увидите содержимое страницы index.html:</p>
